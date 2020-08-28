@@ -15,23 +15,35 @@ firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
 
 const docRef = db.collection("rooms").doc("room01").collection("users");
-
-// const inputHeading01 = document.querySelector("#heading01");
-// const inputHeading02 = document.querySelector("#heading02");
-const saveButton = document.querySelector("#saveButton");
-
-const numUsers = 4;
+const numUsers = 6;
+const usernames = [
+  "Gemly",
+  "hjsith",
+  "Kevin",
+  "Scorcher",
+  "silverirridium",
+  "st",
+];
 
 for (let i = 0; i < numUsers; i++) {
-  var element = document.createElement("h5");
-  element.setAttribute("id", "heading" + (i + 1));
-  element.setAttribute("onfocus", "stopListening(this)");
-  element.setAttribute("onfocusout", "startListening(this)");
-  element.setAttribute("contenteditable", true);
-  element.setAttribute("style", "text-align: right");
-  element.setAttribute("value", "enabled");
-  document.getElementById('savedChatBody').appendChild(element);
-  element.innerHTML = "Please Type Here, Player " + i;
+  var laneHeading = document.createElement("h6");
+  laneHeading.setAttribute("style", "text-align: right; color:white;");
+  laneHeading.innerHTML = `${usernames[i]}`;
+  document.getElementById('savedChatBody').appendChild(laneHeading);
+
+  var heading = document.createElement("h5");
+  heading.setAttribute("id", "heading" + (i + 1));
+  heading.setAttribute("onfocus", "stopListening(this)");
+  heading.setAttribute("onfocusout", "startListening(this)");
+  heading.setAttribute("contenteditable", true);
+  // heading.setAttribute("style", "text-align: right;text-overflow:ellipsis ellipsis;");
+  heading.setAttribute("style", "text-align: right; white-space: nowrap; overflow: scroll;color:white;");
+  heading.setAttribute("value", "enabled");
+  document.getElementById('savedChatBody').appendChild(heading);
+  heading.innerHTML = "Please Type Here, Player " + (i + 1);
+  
+  var br = document.createElement("br");
+  document.getElementById('savedChatBody').appendChild(br);
 
   document.querySelector("#heading" + (i + 1)).addEventListener("keydown", (e) => {
     if (e.key.length === 1 && e.key === ' ') {
@@ -40,19 +52,14 @@ for (let i = 0; i < numUsers; i++) {
   });
 }
 
-// saveButton.addEventListener("click", function () {
-//   updateText();
-// });
-
 function updateText(headingNumber) {
-  // const textHeading01 = document.querySelector("#heading01").innerHTML;
   docRef
     .doc("text" + headingNumber)
     .set({
       content: document.querySelector("#heading" + headingNumber).innerHTML,
     })
     .then(function () {
-      console.log(`text${headingNumber} updated!`);
+      console.log(`text${headingNumber}: ${document.querySelector("#heading" + headingNumber).innerHTML}`);
     })
     .catch(function (error) {
       console.log("Got an error: ", error);
@@ -62,14 +69,3 @@ function updateText(headingNumber) {
 particlesJS.load('particles-js', 'assets/particles.json', function () {
   console.log('callback - particles.js config loaded');
 });
-
-// const seanStream = document.querySelector("#heading01");
-// const seanSavedStream = document.querySelector("#heading01_Saved");
-//seanStream.addEventListener("keydown", (e) => {
-//  if (e.key.length === 1 && e.key === ' ') {
-//    updateText();
-//    seanSavedStream.innerHTML = seanStream.innerHTML;
-//  }
-//});
-
-
