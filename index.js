@@ -16,49 +16,60 @@ var db = firebase.firestore();
 
 const docRef = db.collection("rooms").doc("room01").collection("users");
 
-// const input01 = document.querySelector("#text01");
-const inputHeading01 = document.querySelector("#heading01");
+// const inputHeading01 = document.querySelector("#heading01");
+// const inputHeading02 = document.querySelector("#heading02");
 const saveButton = document.querySelector("#saveButton");
 
-const userNumber = 4;
-for (i =0; i < userNumber; i++) {
-    var element = document.createElement("h5");
-    element.setAttribute("id", "heading" + (i + 1));
-    document.getElementById('savedChatBody').appendChild(element);
-    element.innerHTML = "Hello " + i;
+const numUsers = 4;
+
+for (let i = 0; i < numUsers; i++) {
+  var element = document.createElement("h5");
+  element.setAttribute("id", "heading" + (i + 1));
+  element.setAttribute("onfocus", "stopListening(this)");
+  element.setAttribute("onfocusout", "startListening(this)");
+  element.setAttribute("contenteditable", true);
+  element.setAttribute("style", "text-align: right");
+  element.setAttribute("value", "enabled");
+  document.getElementById('savedChatBody').appendChild(element);
+  element.innerHTML = "Please Type Here, Player " + i;
+
+  document.querySelector("#heading" + (i + 1)).addEventListener("keydown", (e) => {
+    if (e.key.length === 1 && e.key === ' ') {
+      updateText(i + 1);
+    }
+  });
 }
 
-saveButton.addEventListener("click", function () {
-  updateText01();
-});
+// saveButton.addEventListener("click", function () {
+//   updateText();
+// });
 
-function updateText01() {
-  const text01 = inputHeading01.value;
-  const textHeading01 = inputHeading01.innerHTML;
+function updateText(headingNumber) {
+  // const textHeading01 = document.querySelector("#heading01").innerHTML;
   docRef
-    .doc("text01")
+    .doc("text" + headingNumber)
     .set({
-      content: textHeading01,
+      content: document.querySelector("#heading" + headingNumber).innerHTML,
     })
     .then(function () {
-      console.log("text01 update!");
+      console.log(`text${headingNumber} updated!`);
     })
     .catch(function (error) {
       console.log("Got an error: ", error);
     });
 }
 
-particlesJS.load('particles-js', 'assets/particles.json', function() {
-    console.log('callback - particles.js config loaded');
-  });
-
-const seanStream = document.querySelector("#heading01");
-const seanSavedStream = document.querySelector("#heading01_Saved");
-seanStream.addEventListener("keydown", (e) => {
-  if (e.key.length === 1 && e.key === ' ') {
-    updateText01();
-    seanSavedStream.innerHTML = seanStream.innerHTML;
-  }
+particlesJS.load('particles-js', 'assets/particles.json', function () {
+  console.log('callback - particles.js config loaded');
 });
+
+// const seanStream = document.querySelector("#heading01");
+// const seanSavedStream = document.querySelector("#heading01_Saved");
+//seanStream.addEventListener("keydown", (e) => {
+//  if (e.key.length === 1 && e.key === ' ') {
+//    updateText();
+//    seanSavedStream.innerHTML = seanStream.innerHTML;
+//  }
+//});
 
 
