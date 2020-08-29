@@ -173,12 +173,14 @@ function updateText(displayName) {
 
 function stopListening(element) {
   element.setAttribute("value", "disabled");
-  element.classList.add('notransition')
+  // element.classList.add('notransition')
+  // element.offsetHeight;
   console.log(element.id + ' ENABLED');
 }
 
 function startListening(element) {
-  element.classList.remove('notransition');
-  element.setAttribute("value", "enabled");
+  element.offsetHeight;
+  // element.classList.remove('notransition');
+  // element.setAttribute("value", "enabled");
   console.log(element.id + " DISABLED");
 }
