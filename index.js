@@ -81,6 +81,11 @@ function startChatApp(settings) {
         })
       }
 
+      var roomNameLabel = document.createElement("h5");
+      roomNameLabel.setAttribute("style", "color:white;font-weight:bold;");
+      roomNameLabel.innerHTML = `Room Name: ${settings.roomName}`;
+      document.getElementById("head").appendChild(roomNameLabel);
+
       users.forEach(user => {
         createChatForUser(user.displayName, user.initialText);
       });
