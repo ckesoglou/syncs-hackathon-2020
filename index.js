@@ -38,7 +38,7 @@ window.addEventListener('load', (event) => {
 
 clear.onclick = () => {
   window.localStorage.clear();
-  alert("You've cleared local storage! GL brutha!");
+  alert("You've signed out!");
   location.reload();
 }
 
