@@ -2,7 +2,7 @@ var docRef;
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: firebaseAPIKey,
+  apiKey: atob(firebaseAPIKey),
   authDomain: "syncs-hackathon-2020.firebaseapp.com",
   databaseURL: "https://syncs-hackathon-2020.firebaseio.com",
   projectId: "syncs-hackathon-2020",
