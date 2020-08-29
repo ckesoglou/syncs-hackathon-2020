@@ -24,3 +24,57 @@ body {
     z-index: -1;
     opacity: 90%;
   }
+
+#login {
+  width: 25%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+input, input:focus, select, textarea{
+  color: white;
+}
+
+#clear {
+  display: none;
+  position: absolute;
+  top: 5%;
+  right: 5%;
+}
+
+.chosenChatLine{
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);
+  margin:auto;
+  width: 75%;
+  transform: scale(1);
+  animation: glow 2s ease-in-out infinite alternate, pulse 5s infinite;
+}
+
+@keyframes pulse {
+	0% {
+		transform: scale(0.975);
+  }
+	50% {
+		transform: scale(1);
+	}
+
+	100% {
+		transform: scale(0.975);
+	}
+}
+
+@-webkit-keyframes glow {
+  from {
+    text-shadow: 0 0 0px #fff, 0 0 0.5px #fff, 0 0 1px #dae3e4, 0 0 1.5px #dae3e4, 0 0 2px #dae3e4, 0 0 2.5px #dae3e4, 0 0 3px #dae3e4;
+  }
+  to {
+    text-shadow: 0 0 0px #fff, 0 0 1px #c4c2c2, 0 0 1.5px #c4c2c2, 0 0 2px #c4c2c2, 0 0 2.5px #c4c2c2, 0 0 3px #c4c2c2, 0 0 3.5px #c4c2c2;
+  }
+}
+
+.notransition {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}

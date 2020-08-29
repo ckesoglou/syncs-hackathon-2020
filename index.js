@@ -1,3 +1,5 @@
+var docRef;
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: firebaseAPIKey,
@@ -12,60 +14,171 @@ const firebaseConfig = {
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-var db = firebase.firestore();
+const db = firebase.firestore();
 
-const docRef = db.collection("rooms").doc("room01").collection("users");
-const numUsers = 6;
-const usernames = [
-  "Gemly",
-  "hjsith",
-  "Kevin",
-  "Scorcher",
-  "silverirridium",
-  "st",
-];
+particlesJS.load("particles-js", "assets/particles.json", function () {
+  console.log("callback - particles.js config loaded");
+});
 
-for (let i = 0; i < numUsers; i++) {
-  var laneHeading = document.createElement("h6");
-  laneHeading.setAttribute("style", "text-align: right; color:white;");
-  laneHeading.innerHTML = `${usernames[i]}`;
-  document.getElementById('savedChatBody').appendChild(laneHeading);
+var login = document.getElementById("login");
+var loginButton = document.getElementById("loginButton");
 
-  var heading = document.createElement("h5");
-  heading.setAttribute("id", "heading" + (i + 1));
-  heading.setAttribute("onfocus", "stopListening(this)");
-  heading.setAttribute("onfocusout", "startListening(this)");
-  heading.setAttribute("contenteditable", true);
-  // heading.setAttribute("style", "text-align: right;text-overflow:ellipsis ellipsis;");
-  heading.setAttribute("style", "text-align: right; white-space: nowrap; overflow: scroll;color:white;");
-  heading.setAttribute("value", "enabled");
-  document.getElementById('savedChatBody').appendChild(heading);
-  heading.innerHTML = "Please Type Here, Player " + (i + 1);
-  
-  var br = document.createElement("br");
-  document.getElementById('savedChatBody').appendChild(br);
+window.addEventListener('load', (event) => {
+  const settings = JSON.parse(window.localStorage.getItem("settings"));
 
-  document.querySelector("#heading" + (i + 1)).addEventListener("keydown", (e) => {
-    if (e.key.length === 1 && e.key === ' ') {
-      updateText(i + 1);
-    }
-  });
+  if (settings != null
+    && settings.hasOwnProperty("displayName")
+    && settings.hasOwnProperty("roomName")) {
+    startChatApp(settings);
+  }
+  else {
+    login.style.display = "block";
+  }
+})
+
+clear.onclick = () => {
+  window.localStorage.clear();
+  alert("You've cleared local storage! GL brutha!");
+  location.reload();
 }
 
-function updateText(headingNumber) {
+
+loginButton.onclick = () => {
+  let displayName = document.getElementById("displayname").value;
+  let roomName = document.getElementById("roomname").value;
+  if (displayName && roomName) {
+    window.localStorage.setItem("settings", JSON.stringify({
+      displayName: displayName,
+      roomName: roomName,
+    }))
+    login.style.display = "none";
+
+    startChatApp(JSON.parse(window.localStorage.getItem("settings")));
+  }
+}
+
+function startChatApp(settings) {
+  docRef = db.collection("rooms").doc(settings.roomName).collection("users");
+
+  var users = [];
+
+  docRef.get()
+    .then(function (querySnapshot) {
+      querySnapshot.forEach(function (doc) {
+        // doc.data() is never undefined for query doc snapshots
+        console.log("Found user: " + doc.data().displayName);
+        users.push({
+          displayName: doc.data().displayName,
+          initialText: doc.data().content
+        });
+      });
+    })
+    .then(() => {
+      if (!users.some(user => user.displayName === settings.displayName)) {
+        users.push({
+          displayName: settings.displayName,
+          initialText: "Please type here, " + settings.displayName
+        })
+      }
+
+      users.forEach(user => {
+        createChatForUser(user.displayName, user.initialText);
+      });
+      document.getElementById("clear").setAttribute("style", "display: block");
+    })
+    .then(() => getRealtimeVenueUpdates());
+
+
+  getRealtimeVenueUpdates = function () {
+    docRef.onSnapshot(function (querySnapshot) {
+      querySnapshot.docChanges().forEach(function (change) {
+        renderAccount(change.doc);
+      })
+    });
+  }
+}
+
+function renderAccount(doc) {
+  let shortDisplayName = doc.id;
+  if (document.querySelector(`#${shortDisplayName}`) === null) {
+    createChatForUser(doc.data().displayName, doc.data().content);
+  }
+  if (document.querySelector(`#${shortDisplayName}`).getAttribute("value") === "enabled") {
+    document.querySelector(`#${shortDisplayName}`).innerHTML = doc.data().content;
+  }
+}
+
+function createChatForUser(displayName, initialText) {
+  let shortDisplayName = displayName.replace(/\s+/g, '') // strip all white space from username
+
+  var chatUser = document.createElement("h6");
+  chatUser.setAttribute("style", "text-align: center; color:white;");
+  chatUser.innerHTML = displayName;
+  document.getElementById("savedChatBody").appendChild(chatUser);
+
+  var chatLine = document.createElement("h5");
+  chatLine.setAttribute("id", shortDisplayName);
+  // chatLine.className += "text";
+  chatLine.setAttribute("onfocus", "stopListening(this)");
+  chatLine.setAttribute("onfocusout"
+    , "startListening(this)");
+
+  const settings = JSON.parse(window.localStorage.getItem("settings"));
+  if (displayName === settings.displayName) {
+    chatLine.setAttribute("contenteditable", true);
+    chatLine.setAttribute("class", "chosenChatLine")
+  }
+
+  // heading.setAttribute("style", "text-align: right;text-overflow:ellipsis ellipsis;");
+
+  chatLine.setAttribute(
+    "style",
+    "text-align: center; white-space: nowrap; overflow: hidden;color:white;"
+  );
+  chatLine.setAttribute("value", "enabled");
+  document.getElementById("savedChatBody").appendChild(chatLine);
+  chatLine.innerHTML = initialText;
+
+  document.getElementById("savedChatBody").appendChild(document.createElement("br"));
+
+  document
+    .querySelector("#" + shortDisplayName)
+    .addEventListener("keydown", (e) => {
+      if (e.key.length === 1 && e.key === " ") {
+        updateText(displayName);
+      }
+    });
+}
+
+function updateText(displayName) {
+  let shortDisplayName = displayName.replace(/\s+/g, '') // strip all white space from username
   docRef
-    .doc("text" + headingNumber)
+    .doc(shortDisplayName)
     .set({
-      content: document.querySelector("#heading" + headingNumber).innerHTML,
+      content: document.querySelector("#" + shortDisplayName).innerHTML,
+      displayName: displayName
     })
     .then(function () {
-      console.log(`text${headingNumber}: ${document.querySelector("#heading" + headingNumber).innerHTML}`);
+      console.log(
+        `Text for #${shortDisplayName}: ${
+        document.querySelector("#" + shortDisplayName).innerHTML
+        }`
+      );
     })
     .catch(function (error) {
       console.log("Got an error: ", error);
     });
 }
 
-particlesJS.load('particles-js', 'assets/particles.json', function () {
-  console.log('callback - particles.js config loaded');
-});
+
+function stopListening(element) {
+  element.setAttribute("value", "disabled");
+  element.classList.add('notransition')
+  console.log(element.id + ' ENABLED');
+}
+
+function startListening(element) {
+  element.classList.remove('notransition');
+  element.setAttribute("value", "enabled");
+  console.log(element.id + " DISABLED");
+}
